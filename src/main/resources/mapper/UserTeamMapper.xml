@@ -19,10 +19,4 @@
         joinTime,createTime,updateTime,
         isDelete
     </sql>
-
-    <select id="getJoinTeam" resultMap="BaseResultMap" parameterType="Integer">
-        select * from user_team
-        where userId = #{id}
-    </select>
-
 </mapper>

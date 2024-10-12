@@ -7,7 +7,7 @@ package com.guidian.searchFriends.controller;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.guidian.searchFriends.core.UnifyResponse;
-import com.guidian.searchFriends.dto.UserLoginDTO;
+import com.guidian.searchFriends.model.dto.UserLoginDTO;
 import com.guidian.searchFriends.exception.UserLogin;
 import com.guidian.searchFriends.exception.http.NotFoundException;
 import com.guidian.searchFriends.model.User;
@@ -31,7 +31,6 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/user")
 @Slf4j
 public class userController {
-
     @Autowired
     private UserService userService;
 
@@ -51,7 +50,6 @@ public class userController {
         List<UserPure> userPureList = userService.searchUserByTags(tagNameList);
         return new UnifyResponse<>(200, "成功", userPureList);
     }
-
 
     /**
      * 更新用户信息
@@ -80,6 +78,7 @@ public class userController {
     @GetMapping("recommend")
     public UnifyResponse<List<User>> recommendUser(@RequestParam(defaultValue = "8") Integer pageSize, @RequestParam(defaultValue = "1") Integer pageNum, HttpServletRequest request) {
         User loginUser = isLogin(request);
+
         String redisKey = String.format("yupao:user:recommend:%s", loginUser.getId());
         //读Redis
         ValueOperations valueOperations = redisTemplate.opsForValue();
@@ -101,6 +100,58 @@ public class userController {
         
     }
 
+    /**
+     * 用户登陆
+     * @param user
+     * @param request
+     * @return 用户信息
+     */
+    @PostMapping("/login")
+    public UnifyResponse<User> userLogin(@Validated @RequestBody UserLoginDTO user, HttpServletRequest request) {
+
+        User loginUser =  userService.userLogin(user, request);
+        System.out.println(loginUser);
+
+        return new UnifyResponse<>(200, "ok", loginUser);
+    }
+
+
+    /**
+     * 当前用户信息
+     *
+     * @param request
+     * @return
+     */
+    @GetMapping("current")
+    public UnifyResponse<User> currentUser(HttpServletRequest request) {
+//        Object user = request.getSession().getAttribute("user");
+//        if (user == null) {
+//            throw new NotFoundException(20006);
+//        }
+//        User currentUser = (User) user;
+//
+//        User selectUser = userService.selectUser(currentUser.getId());
+
+        isLogin(request);
+        User user = (User) request.getSession().getAttribute("user");
+        User selectUser = userService.selectUser(user.getId());
+        return new UnifyResponse<>(200, "成功", selectUser);
+    }
+
+
+    /**
+     //     * 是否登陆
+     //     * @param request
+     //     * @return
+     //     */
+    private User isLogin(HttpServletRequest request) {
+        User user = (User) request.getSession().getAttribute("user");
+        if (user == null) {
+            throw new UserLogin(40100);
+        }
+        return user;
+    }
+}
 //    @GetMapping("/logOut")
 //    public UnifyResponse<Integer> LogOut(HttpServletRequest request){
 //        if (request == null) {
@@ -127,71 +178,6 @@ public class userController {
 //        return new UnifyResponse<>(200, "ok", user.getUserAccount());
 //    }
 //
-    /**
-     * 用户登陆
-     * @param user
-     * @param request
-     * @return 用户信息
-     */
-    @PostMapping("/login")
-    public UnifyResponse<User> userLogin(@Validated @RequestBody UserLoginDTO user, HttpServletRequest request) {
-
-        User loginUser =  userService.userLogin(user, request);
-        System.out.println(loginUser);
-
-        return new UnifyResponse<>(200, "ok", loginUser);
-    }
-//
-//    /**
-//     * 根据Id获取用户信息
-//     * @param id
-//     * @param request
-//     * @return current User
-//     */
-//    @GetMapping("/select/{id}")
-//    public UnifyResponse<User> selectUser(@PathVariable Long id, HttpServletRequest request) {
-//
-//        if (!isAdmin(request)) {
-//            throw new ForbiddenException(10005);
-//        }
-//        User user = userService.selectUser(id);
-//        return new UnifyResponse<>(200, user);
-//
-//    }
-//    @GetMapping("/delete")
-//    public UnifyResponse<Boolean> DeleteUser(@RequestBody Long id, HttpServletRequest request) {
-//        if (!isAdmin(request)) {
-//            throw new ForbiddenException(10005);
-//        }
-//
-//        if (userService.deleteUser(id)) {
-//            return new UnifyResponse<Boolean>(200,"删除成功", null);
-//        }
-//        throw new ServerErrorException(10007);
-//    }
-//
-    /**
-     * 当前用户信息
-     *
-     * @param request
-     * @return
-     */
-    @GetMapping("current")
-    public UnifyResponse<User> currentUser(HttpServletRequest request) {
-//        Object user = request.getSession().getAttribute("user");
-//        if (user == null) {
-//            throw new NotFoundException(20006);
-//        }
-//        User currentUser = (User) user;
-//
-//        User selectUser = userService.selectUser(currentUser.getId());
-
-        isLogin(request);
-        User user = (User) request.getSession().getAttribute("user");
-        User selectUser = userService.selectUser(user.getId());
-        return new UnifyResponse<>(200, "成功", selectUser);
-    }
-
 //
 //    @PostMapping("/updateUser")
 //    public UnifyResponse<Long> updateUser(HttpServletRequest request, @RequestBody User user) {
@@ -222,18 +208,15 @@ public class userController {
 //        return true;
 //    }
 
-    /**
-     //     * 是否登陆
-     //     * @param request
-     //     * @return
-     //     */
-    private User isLogin(HttpServletRequest request) {
-        User user = (User) request.getSession().getAttribute("user");
-        if (user == null) {
-            throw new UserLogin(40100);
-        }
-        return user;
-    }
-
-
-}
+//    @GetMapping("/delete")
+//    public UnifyResponse<Boolean> DeleteUser(@RequestBody Long id, HttpServletRequest request) {
+//        if (!isAdmin(request)) {
+//            throw new ForbiddenException(10005);
+//        }
+//
+//        if (userService.deleteUser(id)) {
+//            return new UnifyResponse<Boolean>(200,"删除成功", null);
+//        }
+//        throw new ServerErrorException(10007);
+//    }
+//

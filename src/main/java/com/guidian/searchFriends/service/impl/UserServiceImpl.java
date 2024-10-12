@@ -7,8 +7,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.guidian.searchFriends.dto.UserLoginDTO;
-import com.guidian.searchFriends.dto.UserRegisterDTO;
+import com.guidian.searchFriends.model.dto.UserLoginDTO;
+import com.guidian.searchFriends.model.dto.UserRegisterDTO;
 import com.guidian.searchFriends.exception.http.NotFoundException;
 import com.guidian.searchFriends.exception.http.ServerErrorException;
 import com.guidian.searchFriends.exception.http.UnAuthenticatedException;
@@ -18,8 +18,10 @@ import com.guidian.searchFriends.mapper.UserMapper;
 import com.guidian.searchFriends.vo.UserPure;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.internal.constraintvalidators.bv.time.futureorpresent.FutureOrPresentValidatorForCalendar;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -36,6 +38,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
+@Transactional
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
 
@@ -66,6 +69,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", user.getUserAccount());
+        /**
+         * 不允许重复账号
+         */
         Long count = userMapper.selectCount(queryWrapper);
         if (count > 0) {
             throw new ServerErrorException(20001);
@@ -100,7 +106,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.eq("userPassword", encodePassword);
         User selectUser = userMapper.selectOne(queryWrapper);
         if (selectUser == null) {
-
             log.info("user login failed, userAccount Cannot match userPassword");
             throw new UnAuthenticatedException(20003);
         }
@@ -192,15 +197,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return null;
     }
 
-    /**
-     * 判断用户是否为管理员
-     * @param loginUser
-     * @return
-     */
-    @Override
-    public boolean isAdmin(User loginUser) {
-        return false;
-    }
 
     /**
      * 根据Id获取用户信息

@@ -20,18 +20,18 @@ public class RedisTest {
     @Test
     void test(){
         ValueOperations valueOperations = redisTemplate.opsForValue();
-        valueOperations.set("String", "fight");
-        valueOperations.set("Int", 1);
-        valueOperations.set("Double", 2.0);
+//        valueOperations.set("String", "fight");
+//        valueOperations.set("Int", 1);
+//        valueOperations.set("Double", 2.0);
 //        Object stringValue = valueOperations.get("String");
 //        System.out.println(stringValue);
 //        valueOperations.set("String","fight1");
 //        stringValue = valueOperations.get("String");
 //        System.out.println(stringValue);
 //
-//        redisTemplate.delete("String");
-//        redisTemplate.delete("Int");
-//        redisTemplate.delete("Double");
+        redisTemplate.delete("String");
+        redisTemplate.delete("Int");
+        redisTemplate.delete("Double");
     }
 
 }

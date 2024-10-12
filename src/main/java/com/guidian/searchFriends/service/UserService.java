@@ -2,12 +2,13 @@ package com.guidian.searchFriends.service;
 
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.guidian.searchFriends.dto.UserLoginDTO;
-import com.guidian.searchFriends.dto.UserRegisterDTO;
+import com.guidian.searchFriends.model.dto.UserLoginDTO;
+import com.guidian.searchFriends.model.dto.UserRegisterDTO;
 import com.guidian.searchFriends.model.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.guidian.searchFriends.vo.UserPure;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.stereotype.Service;
 
 
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
 * @description 针对表【user(用户)】的数据库操作Service
 * @createDate 2024-05-13 22:04:26
 */
+
 public interface UserService extends IService<User> {
 
 
@@ -30,7 +32,6 @@ public interface UserService extends IService<User> {
 
     Integer updateUser(User user, User loginUser);
 
-    boolean isAdmin(User loginUser);
 
 
     User selectUser(Long id);

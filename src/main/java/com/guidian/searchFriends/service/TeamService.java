@@ -1,7 +1,16 @@
 package com.guidian.searchFriends.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.guidian.searchFriends.model.Team;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.guidian.searchFriends.model.User;
+import com.guidian.searchFriends.model.dto.TeamQuery;
+import com.guidian.searchFriends.model.request.TeamAddRequest;
+import com.guidian.searchFriends.model.request.TeamJoinRequest;
+import com.guidian.searchFriends.model.request.TeamQuiteRequest;
+import com.guidian.searchFriends.model.request.TeamUpdateRequest;
+import com.guidian.searchFriends.model.vo.TeamUserVO;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,4 +24,20 @@ public interface TeamService extends IService<Team> {
     List<Team> getByUserId(Long id);
 
     List<Team> getJoinTeam(Long id);
+
+
+    long addTeam(TeamAddRequest team, User loginUser);
+
+
+    List<Team> listTeams(String searchText, Integer status, Integer pageNum, boolean isAdmin);
+
+    boolean updateTeam(TeamUpdateRequest teamUpdateRequest, User loginUser);
+
+    boolean joinTeam(TeamJoinRequest teamJoinRequest, User loginUser);
+
+    @Transactional(rollbackFor = Exception.class)
+    boolean quieTeam(TeamQuiteRequest teamQuiteRequest, User loginUser);
+
+    @Transactional(rollbackFor = Exception.class)
+    boolean deleteTeam(Long id, User loginUser);
 }
